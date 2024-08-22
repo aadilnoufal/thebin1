@@ -1,0 +1,39 @@
+from machine import Pin, I2C
+import utime
+from urtc import DS3231, datetime
+
+# Setup the PIR motion sensor
+pir_sensor = Pin(14, Pin.IN)
+
+# Setup the LDR module (digital output)
+ldr = Pin(26, Pin.IN)
+
+# Setup the buzzer
+buzzer = Pin(15, Pin.OUT)
+
+# Setup the I2C for the RTC module (e.g., DS3231)
+i2c = I2C(0, sda=Pin(20), scl=Pin(21))
+rtc = DS3231(i2c)
+
+def is_room_dim():
+    # The LDR module outputs LOW when the room is dim
+    return ldr.value() == 0
+
+def detect_motion():
+    return pir_sensor.value() == 1
+
+def sound_buzzer(duration_ms):
+    buzzer.value(1)
+    utime.sleep_ms(duration_ms)
+    buzzer.value(0)
+
+def is_after_9pm():
+    current_time = rtc.datetime()
+    hour = current_time[4]  # Get the current hour (24-hour format)
+    return hour >= 21  # 9 PM is 21:00 in 24-hour format
+
+while True:
+    if is_after_9pm() and detect_motion() and is_room_dim():
+        print("Motion detected in a dim room after 9 PM!")
+        sound_buzzer(1000)  # Sound the buzzer for 1 second
+    utime.sleep(0.5)  # Small delay to avoid too many detections
