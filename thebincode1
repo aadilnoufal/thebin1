@@ -1,6 +1,7 @@
 from machine import Pin, I2C
 import utime
-from urtc import DS3231, datetime
+from urtc import DS3231
+from ssd1306 import SSD1306_I2C  # Assuming you're using an SSD1306 OLED display
 
 # Setup the PIR motion sensor
 pir_sensor = Pin(14, Pin.IN)
@@ -11,9 +12,16 @@ ldr = Pin(26, Pin.IN)
 # Setup the buzzer
 buzzer = Pin(15, Pin.OUT)
 
-# Setup the I2C for the RTC module (e.g., DS3231)
+# Setup the I2C for the RTC module (e.g., DS3231) and the LED display (e.g., SSD1306)
 i2c = I2C(0, sda=Pin(20), scl=Pin(21))
+
+# Setup the RTC
 rtc = DS3231(i2c)
+
+# Setup the OLED display (SSD1306) with a width of 128 pixels and height of 32 pixels
+oled_width = 128
+oled_height = 32
+oled = SSD1306_I2C(oled_width, oled_height, i2c)
 
 def is_room_dim():
     # The LDR module outputs LOW when the room is dim
@@ -24,13 +32,21 @@ def detect_motion():
 
 def sound_buzzer(duration_ms):
     buzzer.value(1)
+    show_on_display(True)
     utime.sleep_ms(duration_ms)
     buzzer.value(0)
+    show_on_display(False)
 
 def is_after_9pm():
     current_time = rtc.datetime()
     hour = current_time[4]  # Get the current hour (24-hour format)
     return hour >= 21  # 9 PM is 21:00 in 24-hour format
+
+def show_on_display(active):
+    oled.fill(0)  # Clear the display
+    if active:
+        oled.text("ON", 0, 0)  # Display "ON" if the buzzer is active
+    oled.show()
 
 while True:
     if is_after_9pm() and detect_motion() and is_room_dim():
