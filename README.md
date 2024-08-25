@@ -13,7 +13,11 @@ https://wokwi.com/projects/406661052205155329
 
 ## parts required
 pico
+
 buzzer
+
 motion sensor
+
 display
+
 ldr sensor
