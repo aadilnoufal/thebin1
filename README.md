@@ -9,3 +9,11 @@ https://wokwi.com/projects/406661052205155329
 
 ### here is code part for the finally checking if true 
 ![image](https://github.com/user-attachments/assets/446081ad-5483-4116-900b-9079d1de0716)
+
+
+## parts required
+pico
+buzzer
+motion sensor
+display
+ldr sensor
